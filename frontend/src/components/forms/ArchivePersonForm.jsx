@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Stack, Text, Button, Alert, Box, Paper } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { IconAlertTriangle, IconExternalLink } from '@tabler/icons-react';
 import { AutocompleteField, ReadOnlyField, LongTextInput, TextInput } from '../fields';
+import SubmitterEmailField from '../form-components/SubmitterEmailField';
+import SlugConfirmation from '../form-components/SlugConfirmation';
+import ArchiveConfirmation from '../form-components/ArchiveConfirmation';
+import FormSuccessState from '../form-components/FormSuccessState';
 
 import { usePeople } from '../../hooks/usePeople';
 
@@ -24,7 +27,7 @@ export default function ArchivePersonForm() {
   } = useForm({
     defaultValues: {
       submitterEmail: '',
-      person: null,       // { name, slug, id }
+      person: null,
       effectiveDate: null,
       reason: '',
       additionalContext: '',
@@ -33,7 +36,6 @@ export default function ArchivePersonForm() {
 
   const selectedPerson = watch('person');
 
-  // ── Submission ─────────────────────────────────────────────────────────────
   async function onSubmit(data) {
     setSubmitError(null);
     try {
@@ -43,9 +45,8 @@ export default function ArchivePersonForm() {
         body: JSON.stringify({
           submitterEmail: data.submitterEmail,
           slug: data.person?.slug,
-          name: data.person?.name,
           effectiveDate: data.effectiveDate
-            ? data.effectiveDate.toISOString().split('T')[0]
+            ? data.effectiveDate.toISOString().slice(0, 10)
             : null,
           reason: data.reason,
           additionalContext: data.additionalContext || undefined,
@@ -72,69 +73,23 @@ export default function ArchivePersonForm() {
     }
   }
 
-  // ── Success state ──────────────────────────────────────────────────────────
   if (submitted) {
-    return (
-      <Stack gap="md" align="center" py="xl">
-        <Text size="sm" fw={600} c="#005b8e">Request submitted</Text>
-        <Text size="sm" c="dimmed" ta="center">
-          Your archive request has been received. Check your email for a confirmation from Monday.com.
-        </Text>
-        <Button variant="subtle" size="xs" onClick={() => setSubmitted(false)}>
-          Submit another request
-        </Button>
-      </Stack>
-    );
+    return <FormSuccessState onReset={() => setSubmitted(false)} />;
   }
 
-  // ── Confirmation step ──────────────────────────────────────────────────────
   if (confirming) {
     return (
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack gap="lg">
-          <Alert
-            icon={<IconAlertTriangle size={16} />}
-            color="orange"
-            radius="md"
-            title="Confirm archive request"
-          >
-            <Text size="sm">
-              Are you sure you want to request archiving{' '}
-              <strong>{selectedPerson?.name}</strong>? Their profile page will be set to draft
-              and will no longer be publicly accessible. The implementing team will review
-              before any changes are made.
-            </Text>
-          </Alert>
-
-          {submitError && (
-            <Alert color="red" radius="md" title="Submission error">
-              <Text size="sm">{submitError}</Text>
-            </Alert>
-          )}
-
-          <Box style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-            <Button
-              variant="subtle"
-              color="gray"
-              onClick={() => { setConfirming(false); setSubmitError(null); }}
-              disabled={isSubmitting}
-            >
-              Go back
-            </Button>
-            <Button
-              type="submit"
-              color="orange"
-              loading={isSubmitting}
-            >
-              Yes, submit request
-            </Button>
-          </Box>
-        </Stack>
-      </form>
+      <ArchiveConfirmation
+        entityName={selectedPerson?.name}
+        entityType="person"
+        onConfirm={handleSubmit(onSubmit)}
+        onBack={() => { setConfirming(false); setSubmitError(null); }}
+        loading={isSubmitting}
+        error={submitError}
+      />
     );
   }
 
-  // ── Main form ──────────────────────────────────────────────────────────────
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(() => setConfirming(true))(); }}>
       <Stack gap="lg">
@@ -143,7 +98,6 @@ export default function ArchivePersonForm() {
           Archive Person
         </Text>
 
-        {/* Person identification */}
         <Stack gap="xs">
           {peopleError ? (
             <Alert color="red">Could not load people. Make sure you are connected to the VPN.</Alert>
@@ -163,29 +117,13 @@ export default function ArchivePersonForm() {
               )}
             />
           )}
-
-          {selectedPerson?.slug && (
-            <Stack gap={4}>
-              <ReadOnlyField label="Slug" value={selectedPerson.slug} />
-              <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Text
-                  component="a"
-                  href={`https://renci.org/team/${selectedPerson.slug}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  size="xs"
-                  c="#005b8e"
-                  style={{ display: 'flex', alignItems: 'center', gap: 4 }}
-                >
-                  View Profile
-                  <IconExternalLink size={12} />
-                </Text>
-              </Box>
-            </Stack>
-          )}
+          <SlugConfirmation
+            slug={selectedPerson?.slug}
+            href={`https://renci.org/team/${selectedPerson?.slug}`}
+            linkText="View Profile"
+          />
         </Stack>
 
-        {/* Effective date */}
         <Controller
           name="effectiveDate"
           control={control}
@@ -197,16 +135,13 @@ export default function ArchivePersonForm() {
               required
               clearable
               placeholder="Pick a date"
-              description="Last day / date the archival takes effect."
+              helperText="Last day / date the archival takes effect."
               error={errors.effectiveDate?.message}
-              styles={{
-                label: { fontWeight: 600, fontSize: '0.875rem', marginBottom: 4 },
-              }}
+              styles={{ label: { fontWeight: 600, fontSize: '0.875rem', marginBottom: 4 } }}
             />
           )}
         />
 
-        {/* Reason */}
         <Controller
           name="reason"
           control={control}
@@ -222,33 +157,27 @@ export default function ArchivePersonForm() {
           )}
         />
 
-        {/* Submitter email */}
         <Controller
-          name="submitterEmail"
+          name="additionalContext"
           control={control}
-          rules={{
-            required: 'Your email is required.',
-            pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address.' },
-          }}
           render={({ field }) => (
-            <TextInput
+            <LongTextInput
               {...field}
-              label="Your Email"
-              required
-              error={errors.submitterEmail?.message}
-              helperText="Used for Monday.com ticket notifications."
+              label="Additional context, if any"
+              error={errors.additionalContext?.message}
             />
           )}
         />
 
-        {/* Warning callout */}
         <Paper radius="md" p="md" style={{ background: '#fff8f0', border: '1px solid #f59e0b' }}>
           <Text size="xs" c="dimmed">
-            Archiving a person sets their profile to inactive. Their profile page will be set to
-            draft and will no longer be publicly accessible. The implementing team will review
-            this request before making any changes.
+            Archiving a person sets their profile to inactive. Their profile page will no longer
+            be publicly accessible. The implementing team will review this request before making
+            any changes.
           </Text>
         </Paper>
+
+        <SubmitterEmailField control={control} error={errors.submitterEmail?.message} />
 
         <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="submit" color="orange">

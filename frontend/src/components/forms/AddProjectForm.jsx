@@ -19,17 +19,14 @@ import TextInput from '../fields/TextInput';
 import LongTextInput from '../fields/LongTextInput';
 import UrlInput from '../fields/UrlInput';
 import TagsInput from '../fields/TagsInput';
+import SubmitterEmailField from '../form-components/SubmitterEmailField';
+import FormSuccessState from '../form-components/FormSuccessState';
 
 import { usePeople } from '../../hooks/usePeople';
 import { useGroups } from '../../hooks/useGroups';
 import { useOrganizations } from '../../hooks/useOrganizations';
 
-const REVIEW_ELIGIBLE_FIELDS = ['name', 'description', 'renciRole', 'slug'];
-
-// Informal acronyms for groups — keyed by slug.
-// Not available from the API, maintained here as a display-only lookup.
 const GROUP_ACRONYMS = {
-  // 'data-management':                    'iRODS',
   'earth-data-science':                 'EDS',
   'networking-research-infrastructure': 'NRIG',
   'acis':                               'ACIS',
@@ -47,7 +44,6 @@ export default function AddProjectForm() {
   const { researchGroups, operationsGroups, loading: groupsLoading } = useGroups();
   const { organizations, loading: orgsLoading } = useOrganizations();
 
-  // Build grouped Select data for Owning Group
   const owningGroupOptions = [
     {
       group: 'Research Groups',
@@ -59,12 +55,7 @@ export default function AddProjectForm() {
     },
   ];
 
-  const [reviewRequests, setReviewRequests] = useState({});
-  const handleReviewChange = (fieldName, checked) => {
-    setReviewRequests((prev) => ({ ...prev, [fieldName]: checked }));
-  };
-
-  const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
+  const [submitStatus, setSubmitStatus] = useState(null);
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -98,49 +89,39 @@ export default function AddProjectForm() {
     setSubmitStatus(null);
     setSubmitError('');
 
-    const reviewRequestsList = REVIEW_ELIGIBLE_FIELDS.filter(
-      (fieldName) => !!reviewRequests[fieldName]
-    );
-
-    const payload = { ...data, reviewRequests: reviewRequestsList };
-
     try {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data),
       });
 
       if (res.status === 503) {
-        setSubmitError(
-          "Unable to reach the data server. Please make sure you're connected to the VPN and try again."
-        );
+        setSubmitError("Unable to reach the data server. Please make sure you're connected to the VPN and try again.");
         setSubmitStatus('error');
         return;
       }
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        const message =
-          body?.errors?.map((e) => e.message).join(', ') ||
-          `Submission failed (${res.status})`;
-        setSubmitError(message);
+        setSubmitError(body?.errors?.map((e) => e.message).join(', ') || `Submission failed (${res.status})`);
         setSubmitStatus('error');
         return;
       }
 
       setSubmitStatus('success');
       reset();
-      setReviewRequests({});
     } catch {
-      setSubmitError(
-        "Unable to reach the data server. Please make sure you're connected to the VPN and try again."
-      );
+      setSubmitError("Unable to reach the data server. Please make sure you're connected to the VPN and try again.");
       setSubmitStatus('error');
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (submitStatus === 'success') {
+    return <FormSuccessState onReset={() => setSubmitStatus(null)} />;
+  }
 
   return (
     <Stack gap="xl">
@@ -151,24 +132,8 @@ export default function AddProjectForm() {
         </Text>
       </div>
 
-      {submitStatus === 'success' && (
-        <Alert
-          icon={<IconCircleCheck size={18} />}
-          title="Submission received"
-          color="green"
-          variant="light"
-        >
-          Your request has been submitted. You'll receive an email when it's been reviewed.
-        </Alert>
-      )}
-
       {submitStatus === 'error' && (
-        <Alert
-          icon={<IconAlertCircle size={18} />}
-          title="Submission failed"
-          color="red"
-          variant="light"
-        >
+        <Alert icon={<IconAlertCircle size={18} />} title="Submission failed" color="red" variant="light">
           {submitError}
         </Alert>
       )}
@@ -176,92 +141,48 @@ export default function AddProjectForm() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack gap="lg">
 
-          {/* ── Submitter email ── */}
+          <Divider label="Project details" labelPosition="left" />
+
           <Controller
-            name="submitterEmail"
+            name="name"
             control={control}
-            rules={{ required: 'Your email address is required.' }}
+            rules={{ required: 'Project Name is required.' }}
+            render={({ field }) => (
+              <TextInput {...field} label="Project Name" required error={errors.name?.message} />
+            )}
+          />
+
+          <Controller
+            name="slug"
+            control={control}
             render={({ field }) => (
               <TextInput
                 {...field}
-                label="Your Email"
-                required
-                helperText="We'll email you when this is reviewed."
-                error={errors.submitterEmail?.message}
+                label="Preferred Slug"
+                helperText="Leave blank and the team will generate one."
+                error={errors.slug?.message}
               />
             )}
           />
 
-          <Divider label="Project details" labelPosition="left" />
+          <Controller
+            name="description"
+            control={control}
+            rules={{ required: 'Description is required.' }}
+            render={({ field }) => (
+              <LongTextInput {...field} label="Description" required error={errors.description?.message} />
+            )}
+          />
 
-          {/* ── Name + review checkbox ── */}
-          <Stack gap={0}>
-            <Controller
-              name="name"
-              control={control}
-              rules={{ required: 'Project Name is required.' }}
-              render={({ field }) => (
-                <TextInput
-                  {...field}
-                  label="Project Name"
-                  required
-                  error={errors.name?.message}
-                />
-              )}
-            />
-          </Stack>
+          <Controller
+            name="renciRole"
+            control={control}
+            rules={{ required: "RENCI's Role is required." }}
+            render={({ field }) => (
+              <TextInput {...field} label="RENCI's Role" required error={errors.renciRole?.message} />
+            )}
+          />
 
-          {/* ── Slug + review checkbox ── */}
-          <Stack gap={0}>
-            <Controller
-              name="slug"
-              control={control}
-              render={({ field }) => (
-                <TextInput
-                  {...field}
-                  label="Preferred Slug"
-                  helperText="Leave blank and the team will generate one."
-                  error={errors.slug?.message}
-                />
-              )}
-            />
-          </Stack>
-
-          {/* ── Description + review checkbox ── */}
-          <Stack gap={0}>
-            <Controller
-              name="description"
-              control={control}
-              rules={{ required: 'Description is required.' }}
-              render={({ field }) => (
-                <LongTextInput
-                  {...field}
-                  label="Description"
-                  required
-                  error={errors.description?.message}
-                />
-              )}
-            />
-          </Stack>
-
-          {/* ── RENCI Role + review checkbox ── */}
-          <Stack gap={0}>
-            <Controller
-              name="renciRole"
-              control={control}
-              rules={{ required: "RENCI's Role is required." }}
-              render={({ field }) => (
-                <TextInput
-                  {...field}
-                  label="RENCI's Role"
-                  required
-                  error={errors.renciRole?.message}
-                />
-              )}
-            />
-          </Stack>
-
-          {/* ── Owning group ── */}
           <Controller
             name="owningGroup"
             control={control}
@@ -287,7 +208,6 @@ export default function AddProjectForm() {
 
           <Divider label="People & organizations" labelPosition="left" />
 
-          {/* ── Contributors (people) ── */}
           <Controller
             name="people"
             control={control}
@@ -304,7 +224,6 @@ export default function AddProjectForm() {
             )}
           />
 
-          {/* ── Funding orgs ── */}
           <Controller
             name="fundingOrgs"
             control={control}
@@ -320,7 +239,6 @@ export default function AddProjectForm() {
             )}
           />
 
-          {/* ── Partner orgs ── */}
           <Controller
             name="partnerOrgs"
             control={control}
@@ -338,23 +256,16 @@ export default function AddProjectForm() {
 
           <Divider label="Websites" labelPosition="left" />
 
-          {/* ── Websites (useFieldArray) ── */}
           <Stack gap="xs">
             <Group justify="space-between" align="center">
               <Text fw={600} size="sm">Websites</Text>
-              <Button
-                size="xs"
-                variant="light"
-                onClick={() => append({ url: '', label: '' })}
-              >
+              <Button size="xs" variant="light" onClick={() => append({ url: '', label: '' })}>
                 + Add website
               </Button>
             </Group>
 
             {websiteFields.length === 0 && (
-              <Text size="sm" c="dimmed" fs="italic" py={4}>
-                No websites added yet.
-              </Text>
+              <Text size="sm" c="dimmed" fs="italic" py={4}>No websites added yet.</Text>
             )}
 
             {websiteFields.map((websiteField, index) => (
@@ -364,33 +275,17 @@ export default function AddProjectForm() {
                     name={`websites.${index}.url`}
                     control={control}
                     render={({ field }) => (
-                      <UrlInput
-                        {...field}
-                        label="URL"
-                        error={errors.websites?.[index]?.url?.message}
-                        style={{ flex: 2 }}
-                      />
+                      <UrlInput {...field} label="URL" error={errors.websites?.[index]?.url?.message} style={{ flex: 2 }} />
                     )}
                   />
                   <Controller
                     name={`websites.${index}.label`}
                     control={control}
                     render={({ field }) => (
-                      <TextInput
-                        {...field}
-                        label="Label (optional)"
-                        error={errors.websites?.[index]?.label?.message}
-                        style={{ flex: 1 }}
-                      />
+                      <TextInput {...field} label="Label (optional)" error={errors.websites?.[index]?.label?.message} style={{ flex: 1 }} />
                     )}
                   />
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() => remove(index)}
-                    mb={1}
-                    aria-label="Remove website"
-                  >
+                  <ActionIcon color="red" variant="subtle" onClick={() => remove(index)} mb={1} aria-label="Remove website">
                     <IconTrash size={16} />
                   </ActionIcon>
                 </Group>
@@ -400,6 +295,8 @@ export default function AddProjectForm() {
           </Stack>
 
           <Divider />
+
+          <SubmitterEmailField control={control} error={errors.submitterEmail?.message} />
 
           <Group justify="flex-end">
             <Button type="submit" loading={submitting} disabled={submitting}>
