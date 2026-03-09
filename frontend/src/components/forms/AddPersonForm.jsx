@@ -24,7 +24,6 @@ import TextInput from '../fields/TextInput';
 import LongTextInput from '../fields/LongTextInput';
 import UrlInput from '../fields/UrlInput';
 import TagsInput from '../fields/TagsInput';
-import ReviewCheckbox from '../fields/ReviewCheckbox';
 
 import { usePeople } from '../../hooks/usePeople';
 import { useProjects } from '../../hooks/useProjects';
@@ -351,11 +350,6 @@ export default function AddPersonForm() {
                   />
                 )}
               />
-              <ReviewCheckbox
-                fieldName="renciScholarBio"
-                checked={!!reviewRequests.renciScholarBio}
-                onChange={handleReviewChange}
-              />
             </Stack>
           </Collapse>
 
@@ -391,11 +385,6 @@ export default function AddPersonForm() {
                   error={errors.bio?.message}
                 />
               )}
-            />
-            <ReviewCheckbox
-              fieldName="bio"
-              checked={!!reviewRequests.bio}
-              onChange={handleReviewChange}
             />
           </Stack>
 

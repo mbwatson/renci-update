@@ -19,7 +19,6 @@ import TextInput from '../fields/TextInput';
 import LongTextInput from '../fields/LongTextInput';
 import UrlInput from '../fields/UrlInput';
 import TagsInput from '../fields/TagsInput';
-import ReviewCheckbox from '../fields/ReviewCheckbox';
 
 import { usePeople } from '../../hooks/usePeople';
 import { useGroups } from '../../hooks/useGroups';
@@ -210,11 +209,6 @@ export default function AddProjectForm() {
                 />
               )}
             />
-            <ReviewCheckbox
-              fieldName="name"
-              checked={!!reviewRequests.name}
-              onChange={handleReviewChange}
-            />
           </Stack>
 
           {/* ── Slug + review checkbox ── */}
@@ -230,11 +224,6 @@ export default function AddProjectForm() {
                   error={errors.slug?.message}
                 />
               )}
-            />
-            <ReviewCheckbox
-              fieldName="slug"
-              checked={!!reviewRequests.slug}
-              onChange={handleReviewChange}
             />
           </Stack>
 
@@ -253,11 +242,6 @@ export default function AddProjectForm() {
                 />
               )}
             />
-            <ReviewCheckbox
-              fieldName="description"
-              checked={!!reviewRequests.description}
-              onChange={handleReviewChange}
-            />
           </Stack>
 
           {/* ── RENCI Role + review checkbox ── */}
@@ -274,11 +258,6 @@ export default function AddProjectForm() {
                   error={errors.renciRole?.message}
                 />
               )}
-            />
-            <ReviewCheckbox
-              fieldName="renciRole"
-              checked={!!reviewRequests.renciRole}
-              onChange={handleReviewChange}
             />
           </Stack>
 
