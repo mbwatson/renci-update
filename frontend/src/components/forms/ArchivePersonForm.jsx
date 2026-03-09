@@ -222,19 +222,6 @@ export default function ArchivePersonForm() {
           )}
         />
 
-        {/* Additional context */}
-        <Controller
-          name="additionalContext"
-          control={control}
-          render={({ field }) => (
-            <LongTextInput
-              {...field}
-              label="Additional context, if any"
-              error={errors.additionalContext?.message}
-            />
-          )}
-        />
-
         {/* Submitter email */}
         <Controller
           name="submitterEmail"
