@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/RelationalFieldEditor.jsx
+// frontend/src/components/form-blocks/RelationalFieldEditor.jsx
 
 import { Box, Group, Stack, Text, Badge, ActionIcon, Divider } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';

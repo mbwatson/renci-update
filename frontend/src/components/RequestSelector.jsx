@@ -1,58 +1,42 @@
 // frontend/src/components/RequestSelector.jsx
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Select, Text, Box, Stack, Paper, Transition } from '@mantine/core';
-import AddProjectForm from './forms/AddProjectForm';
-import UpdateProjectForm from './forms/UpdateProjectForm';
-import ArchiveProjectForm from './forms/ArchiveProjectForm';
-import AddPersonForm from './forms/AddPersonForm';
-import UpdatePersonForm from './forms/UpdatePersonForm';
-import ArchivePersonForm from './forms/ArchivePersonForm';
 
 const ACTION_OPTIONS = [
-  { value: 'add', label: 'Add' },
-  { value: 'update', label: 'Update' },
+  { value: 'add',     label: 'Add' },
+  { value: 'update',  label: 'Update' },
   { value: 'archive', label: 'Archive' },
 ];
 
 const ENTITY_OPTIONS = [
   { value: 'project', label: 'Project' },
-  { value: 'person', label: 'Person' },
+  { value: 'person',  label: 'Person' },
 ];
 
-function getForm(action, entity) {
-  if (!action || !entity) return null;
-  const key = `${action}-${entity}`;
-  switch (key) {
-    case 'add-project':     return <AddProjectForm />;
-    case 'update-project':  return <UpdateProjectForm />;
-    case 'archive-project': return <ArchiveProjectForm />;
-    case 'add-person':      return <AddPersonForm />;
-    case 'update-person':   return <UpdatePersonForm />;
-    case 'archive-person':  return <ArchivePersonForm />;
-    default:
-      return (
-        <Stack gap="xs" align="center" py="xl">
-          <Text size="sm" fw={600} c="#005b8e">Coming soon</Text>
-          <Text size="xs" c="dimmed">This form hasn't been built yet.</Text>
-        </Stack>
-      );
-  }
-}
-
 export default function RequestSelector() {
+  const navigate = useNavigate();
   const [action, setAction] = useState(null);
   const [entity, setEntity] = useState(null);
 
-  const form = getForm(action, entity);
-  const formVisible = !!form;
+  const handleActionChange = (val) => {
+    setAction(val);
+    if (val && entity) navigate(`/${val}/${entity}`);
+  };
+
+  const handleEntityChange = (val) => {
+    setEntity(val);
+    if (action && val) navigate(`/${action}/${val}`);
+  };
 
   return (
     <Container size="sm" py="xl">
       <Stack gap="xl">
 
-        {/* Intro text — fades out once both selectors have a value */}
-        <Transition mounted={!formVisible} transition="fade" duration={200} timingFunction="ease">
+        {/* Intro text — fades out once both selectors have a value and navigation occurs.
+            Since navigation unmounts this component, the transition is just for
+            the brief moment between second selection and route change. */}
+        <Transition mounted={!(action && entity)} transition="fade" duration={200} timingFunction="ease">
           {(styles) => (
             <Box style={styles}>
               <Text size="sm" c="dimmed">
@@ -95,7 +79,7 @@ export default function RequestSelector() {
               <Select
                 data={ACTION_OPTIONS}
                 value={action}
-                onChange={setAction}
+                onChange={handleActionChange}
                 placeholder="choose an action"
                 size="md"
                 radius="md"
@@ -116,7 +100,7 @@ export default function RequestSelector() {
               <Select
                 data={ENTITY_OPTIONS}
                 value={entity}
-                onChange={setEntity}
+                onChange={handleEntityChange}
                 placeholder="choose a type"
                 size="md"
                 radius="md"
@@ -136,18 +120,6 @@ export default function RequestSelector() {
             </Box>
           </Stack>
         </Paper>
-
-        {/* Form area */}
-        {form && (
-          <Paper
-            withBorder
-            radius="md"
-            p="xl"
-            style={{ background: '#fff', borderColor: '#e0e0e0' }}
-          >
-            {form}
-          </Paper>
-        )}
 
       </Stack>
     </Container>

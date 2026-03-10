@@ -19,12 +19,12 @@ import {
 import { DateInput } from '@mantine/dates';
 import { IconTrash, IconAlertCircle } from '@tabler/icons-react';
 
-import TextInput from '../fields/TextInput';
-import LongTextInput from '../fields/LongTextInput';
-import UrlInput from '../fields/UrlInput';
-import TagsInput from '../fields/TagsInput';
-import SubmitterEmailField from '../form-components/SubmitterEmailField';
-import FormSuccessState from '../form-components/FormSuccessState';
+import TextInput from '../form-elements/TextInput';
+import LongTextInput from '../form-elements/LongTextInput';
+import UrlInput from '../form-elements/UrlInput';
+import TagsInput from '../form-elements/TagsInput';
+import SubmitterEmailField from '../form-blocks/SubmitterEmailField';
+import FormSuccessState from '../form-blocks/FormSuccessState';
 
 import { useProjects } from '../../hooks/useProjects';
 import { useGroups } from '../../hooks/useGroups';

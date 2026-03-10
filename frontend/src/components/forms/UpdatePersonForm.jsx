@@ -25,13 +25,13 @@ import {
   AutocompleteField,
   TagsInput,
   ReadOnlyField,
-} from '../fields';
-import SubmitterEmailField from '../form-components/SubmitterEmailField';
-import SlugConfirmation from '../form-components/SlugConfirmation';
-import FormSuccessState from '../form-components/FormSuccessState';
-import CurrentDataModal from '../form-components/CurrentDataModal';
-import EditableWebsiteList from '../form-components/EditableWebsiteList';
-import RelationalFieldEditor from '../form-components/RelationalFieldEditor';
+} from '../form-elements';
+import SubmitterEmailField from '../form-blocks/SubmitterEmailField';
+import SlugConfirmation from '../form-blocks/SlugConfirmation';
+import FormSuccessState from '../form-blocks/FormSuccessState';
+import CurrentDataModal from '../form-blocks/CurrentDataModal';
+import EditableWebsiteList from '../form-blocks/EditableWebsiteList';
+import RelationalFieldEditor from '../form-blocks/RelationalFieldEditor';
 import { usePeople } from '../../hooks/usePeople';
 import { useProjects } from '../../hooks/useProjects';
 import { useGroups } from '../../hooks/useGroups';

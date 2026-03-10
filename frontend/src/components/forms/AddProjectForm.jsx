@@ -15,12 +15,12 @@ import {
 } from '@mantine/core';
 import { IconTrash, IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 
-import TextInput from '../fields/TextInput';
-import LongTextInput from '../fields/LongTextInput';
-import UrlInput from '../fields/UrlInput';
-import TagsInput from '../fields/TagsInput';
-import SubmitterEmailField from '../form-components/SubmitterEmailField';
-import FormSuccessState from '../form-components/FormSuccessState';
+import TextInput from '../form-elements/TextInput';
+import LongTextInput from '../form-elements/LongTextInput';
+import UrlInput from '../form-elements/UrlInput';
+import TagsInput from '../form-elements/TagsInput';
+import SubmitterEmailField from '../form-blocks/SubmitterEmailField';
+import FormSuccessState from '../form-blocks/FormSuccessState';
 
 import { usePeople } from '../../hooks/usePeople';
 import { useGroups } from '../../hooks/useGroups';

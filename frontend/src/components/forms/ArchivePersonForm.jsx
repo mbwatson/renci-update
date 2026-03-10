@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Stack, Text, Button, Alert, Box, Paper } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { AutocompleteField, ReadOnlyField, LongTextInput, TextInput } from '../fields';
-import SubmitterEmailField from '../form-components/SubmitterEmailField';
-import SlugConfirmation from '../form-components/SlugConfirmation';
-import ArchiveConfirmation from '../form-components/ArchiveConfirmation';
-import FormSuccessState from '../form-components/FormSuccessState';
+import { AutocompleteField, ReadOnlyField, LongTextInput, TextInput } from '../form-elements';
+import SubmitterEmailField from '../form-blocks/SubmitterEmailField';
+import SlugConfirmation from '../form-blocks/SlugConfirmation';
+import ArchiveConfirmation from '../form-blocks/ArchiveConfirmation';
+import FormSuccessState from '../form-blocks/FormSuccessState';
 
 import { usePeople } from '../../hooks/usePeople';
 

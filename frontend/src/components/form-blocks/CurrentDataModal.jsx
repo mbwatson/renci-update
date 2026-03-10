@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/CurrentDataModal.jsx
+// frontend/src/components/form-blocks/CurrentDataModal.jsx
 
 import { Modal, Stack, Box, Text } from '@mantine/core';
 

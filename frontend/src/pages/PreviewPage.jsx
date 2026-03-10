@@ -12,13 +12,13 @@ import {
 } from '@mantine/core';
 import { useForm, Controller } from 'react-hook-form';
 
-import TextInput from '../components/fields/TextInput';
-import LongTextInput from '../components/fields/LongTextInput';
-import UrlInput from '../components/fields/UrlInput';
-import AutocompleteField from '../components/fields/AutocompleteField';
-import RepeatableField from '../components/fields/RepeatableField';
-import FieldSelector from '../components/fields/FieldSelector';
-import ReadOnlyField from '../components/fields/ReadOnlyField';
+import TextInput from '../components/form-elements/TextInput';
+import LongTextInput from '../components/form-elements/LongTextInput';
+import UrlInput from '../components/form-elements/UrlInput';
+import AutocompleteField from '../components/form-elements/AutocompleteField';
+import RepeatableField from '../components/form-elements/RepeatableField';
+import FieldSelector from '../components/form-elements/FieldSelector';
+import ReadOnlyField from '../components/form-elements/ReadOnlyField';
 
 // ─── Sample data ──────────────────────────────────────────────────────────────
 const SAMPLE_PROJECTS = [

@@ -1,8 +1,8 @@
-// frontend/src/components/form-components/SlugConfirmation.jsx
+// frontend/src/components/form-blocks/SlugConfirmation.jsx
 
 import { Stack, Box, Text } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
-import ReadOnlyField from '../fields/ReadOnlyField';
+import ReadOnlyField from '../form-elements/ReadOnlyField';
 
 /**
  * SlugConfirmation

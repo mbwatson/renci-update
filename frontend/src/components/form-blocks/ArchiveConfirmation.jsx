@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/ArchiveConfirmation.jsx
+// frontend/src/components/form-blocks/ArchiveConfirmation.jsx
 
 import { Stack, Text, Button, Alert, Box } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';

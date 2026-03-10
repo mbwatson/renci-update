@@ -1,9 +1,10 @@
 // frontend/src/components/Layout.jsx
 import { Box } from '@mantine/core';
+import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 
-export default function Layout({ children }) {
+export default function Layout() {
   return (
     <Box
       style={{
@@ -15,7 +16,7 @@ export default function Layout({ children }) {
     >
       <Header />
       <Box component="main" style={{ flex: 1 }}>
-        {children}
+        <Outlet />
       </Box>
       <Footer />
     </Box>

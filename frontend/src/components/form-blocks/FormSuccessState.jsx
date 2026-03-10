@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/FormSuccessState.jsx
+// frontend/src/components/form-blocks/FormSuccessState.jsx
 
 import { Stack, Text, Button } from '@mantine/core';
 

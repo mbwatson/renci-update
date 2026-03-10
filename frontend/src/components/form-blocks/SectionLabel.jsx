@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/SectionLabel.jsx
+// frontend/src/components/form-blocks/SectionLabel.jsx
 
 import { Text } from '@mantine/core';
 

@@ -1,4 +1,4 @@
-// frontend/src/components/form-components/EditableWebsiteList.jsx
+// frontend/src/components/form-blocks/EditableWebsiteList.jsx
 
 import { useState } from 'react';
 import { Stack, Group, Button, ActionIcon, TextInput } from '@mantine/core';

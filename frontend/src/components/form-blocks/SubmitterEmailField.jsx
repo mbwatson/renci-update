@@ -1,7 +1,7 @@
-// frontend/src/components/form-components/SubmitterEmailField.jsx
+// frontend/src/components/form-blocks/SubmitterEmailField.jsx
 
 import { Controller } from 'react-hook-form';
-import TextInput from '../fields/TextInput';
+import TextInput from '../form-elements/TextInput';
 
 /**
  * SubmitterEmailField
