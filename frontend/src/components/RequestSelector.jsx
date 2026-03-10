@@ -1,7 +1,7 @@
 // frontend/src/components/RequestSelector.jsx
 
 import { useState } from 'react';
-import { Container, Select, Text, Box, Stack, Paper } from '@mantine/core';
+import { Container, Select, Text, Box, Stack, Paper, Transition } from '@mantine/core';
 import AddProjectForm from './forms/AddProjectForm';
 import UpdateProjectForm from './forms/UpdateProjectForm';
 import ArchiveProjectForm from './forms/ArchiveProjectForm';
@@ -33,12 +33,8 @@ function getForm(action, entity) {
     default:
       return (
         <Stack gap="xs" align="center" py="xl">
-          <Text size="sm" fw={600} c="#005b8e">
-            Coming soon
-          </Text>
-          <Text size="xs" c="dimmed">
-            This form hasn't been built yet.
-          </Text>
+          <Text size="sm" fw={600} c="#005b8e">Coming soon</Text>
+          <Text size="xs" c="dimmed">This form hasn't been built yet.</Text>
         </Stack>
       );
   }
@@ -49,11 +45,26 @@ export default function RequestSelector() {
   const [entity, setEntity] = useState(null);
 
   const form = getForm(action, entity);
+  const formVisible = !!form;
 
   return (
     <Container size="sm" py="xl">
       <Stack gap="xl">
-        {/* Entry point sentence */}
+
+        {/* Intro text — fades out once both selectors have a value */}
+        <Transition mounted={!formVisible} transition="fade" duration={200} timingFunction="ease">
+          {(styles) => (
+            <Box style={styles}>
+              <Text size="sm" c="dimmed">
+                This tool is for RENCI staff to submit website change requests. Use it to add,
+                update, or archive projects and people on the RENCI website. Requests are reviewed
+                by the web team before any changes go live.
+              </Text>
+            </Box>
+          )}
+        </Transition>
+
+        {/* Selector card */}
         <Paper
           withBorder
           radius="md"
@@ -79,9 +90,7 @@ export default function RequestSelector() {
                 rowGap: '0.75rem',
               }}
             >
-              <Text size="lg" fw={500} c="#1a1a1a">
-                I'd like to
-              </Text>
+              <Text size="lg" fw={500} c="#1a1a1a">I'd like to</Text>
 
               <Select
                 data={ACTION_OPTIONS}
@@ -102,9 +111,7 @@ export default function RequestSelector() {
                 aria-label="Select action"
               />
 
-              <Text size="lg" fw={500} c="#1a1a1a">
-                a
-              </Text>
+              <Text size="lg" fw={500} c="#1a1a1a">a</Text>
 
               <Select
                 data={ENTITY_OPTIONS}
@@ -125,14 +132,12 @@ export default function RequestSelector() {
                 aria-label="Select entity type"
               />
 
-              <Text size="lg" fw={500} c="#1a1a1a">
-                .
-              </Text>
+              <Text size="lg" fw={500} c="#1a1a1a">.</Text>
             </Box>
           </Stack>
         </Paper>
 
-        {/* Form area — renders only when both selectors have a value */}
+        {/* Form area */}
         {form && (
           <Paper
             withBorder
@@ -143,6 +148,7 @@ export default function RequestSelector() {
             {form}
           </Paper>
         )}
+
       </Stack>
     </Container>
   );
