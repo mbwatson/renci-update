@@ -30,7 +30,6 @@ import FormSuccessState from '../form-components/FormSuccessState';
 import CurrentDataModal from '../form-components/CurrentDataModal';
 import EditableWebsiteList from '../form-components/EditableWebsiteList';
 import RelationalFieldEditor from '../form-components/RelationalFieldEditor';
-import SectionLabel from '../form-components/SectionLabel';
 import { useProjects } from '../../hooks/useProjects';
 import { useGroups } from '../../hooks/useGroups';
 import { usePeople } from '../../hooks/usePeople';
