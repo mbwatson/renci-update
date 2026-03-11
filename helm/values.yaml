@@ -1,0 +1,88 @@
+# Default values for renci-update Helm chart
+
+replicaCount: 1
+
+# ── Frontend (Nginx serving the React build) ──────────────────────────────────
+frontend:
+  image:
+    repository: containers.renci.org/comms/renci-update-frontend
+    pullPolicy: Always
+    tag: "0.1.0"
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# ── Backend (Express API) ─────────────────────────────────────────────────────
+backend:
+  image:
+    repository: containers.renci.org/comms/renci-update-backend
+    pullPolicy: Always
+    tag: "0.1.0"
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# ── Service ───────────────────────────────────────────────────────────────────
+# Only the frontend (Nginx) is exposed. The backend is reached via localhost
+# within the pod.
+service:
+  type: ClusterIP
+  port: 80
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    cert-manager.io/cluster-issuer: zerossl
+  hosts:
+    - host: update.apps.renci.org
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: update.apps.renci.org-tls
+      hosts:
+        - update.apps.renci.org
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# Placeholder keys — supply real values at deploy time:
+#   helm install renci-update ./helm --set secrets.MONDAY_API_KEY=xxx ...
+secrets:
+  GRAPHQL_ENDPOINT: ""
+  GRAPHQL_AUTH_HEADER: ""
+  MONDAY_API_KEY: ""
+  MONDAY_BOARD_ID: ""
+  MONDAY_COL_ASSIGNED_PERSON: ""
+  MONDAY_COL_STATUS: ""
+  MONDAY_COL_DATE: ""
+  MONDAY_COL_CONTENT_TYPE: ""
+  MONDAY_COL_DESCRIPTION: ""
+  MONDAY_COL_ITEM_NAME: ""
+
+# ── Common ────────────────────────────────────────────────────────────────────
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
