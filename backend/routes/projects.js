@@ -8,7 +8,6 @@ import { createItem, createSubitem } from '../services/monday.js';
 const router = express.Router();
 
 // ── GET /api/projects ─────────────────────────────────────────────────────────
-// Returns all projects from the GraphQL API.
 router.get('/', async (req, res) => {
   try {
     const projects = await getProjects();
@@ -23,9 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // ── POST /api/projects ────────────────────────────────────────────────────────
-// Accepts an Add Project submission, creates a Monday parent item + subitems.
 router.post('/', async (req, res) => {
-  // 1. Validate required-to-submit fields
   const result = validate('project.add', req.body);
   if (!result.valid) {
     return res.status(400).json({ errors: result.errors });
@@ -47,11 +44,8 @@ router.post('/', async (req, res) => {
 
   try {
     const boardId = process.env.MONDAY_BOARD_ID;
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
 
-    // ── 2. Build column values for the parent item ──────────────────────────
-
-    // Helper: format a mixed TagsInput value array as a readable string
     const formatTags = (arr) => {
       if (!Array.isArray(arr) || arr.length === 0) return '(none)';
       return arr
@@ -61,7 +55,7 @@ router.post('/', async (req, res) => {
 
     const formatWebsites = (arr) => {
       if (!Array.isArray(arr) || arr.length === 0) return '(none)';
-      return arr.map((w) => (w.label ? `${w.label}: ${w.url}` : w.url)).join('\n');
+      return arr.map((w) => w.url).join('\n');
     };
 
     const descriptionText = [
@@ -82,18 +76,14 @@ router.post('/', async (req, res) => {
       [process.env.MONDAY_COL_DATE]: { date: today },
       [process.env.MONDAY_COL_CONTENT_TYPE]: { labels: ['Project'] },
       [process.env.MONDAY_COL_DESCRIPTION]: { text: descriptionText },
+      [process.env.MONDAY_COL_SUBMITTER_EMAIL]: { email: submitterEmail, text: submitterEmail },
     };
 
     const itemName = `Add Project - ${name?.trim() || '(unnamed)'}`;
-
-    // ── 3. Create Monday parent item ────────────────────────────────────────
     const item = await createItem(boardId, itemName, columnValues);
-
-    // ── 4. Build subitem list ───────────────────────────────────────────────
 
     const subitems = [];
 
-    // Missing publish-required fields → auto-flag
     const publishRequired = [
       { key: name, label: 'Project Name' },
       { key: owningGroup, label: 'Owning Group' },
@@ -106,32 +96,16 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // Missing important (non-blocking) fields → auto-flag
     const importantFields = [
-      {
-        key: Array.isArray(people) && people.length > 0,
-        label: 'Contributors',
-      },
-      {
-        key: Array.isArray(fundingOrgs) && fundingOrgs.length > 0,
-        label: 'Funding Organizations',
-      },
-      {
-        key: Array.isArray(partnerOrgs) && partnerOrgs.length > 0,
-        label: 'Partner Organizations',
-      },
-      {
-        key: slug?.trim(),
-        label: 'Slug',
-      },
+      { key: Array.isArray(people) && people.length > 0,      label: 'Contributors' },
+      { key: Array.isArray(fundingOrgs) && fundingOrgs.length > 0, label: 'Funding Organizations' },
+      { key: Array.isArray(partnerOrgs) && partnerOrgs.length > 0, label: 'Partner Organizations' },
+      { key: slug?.trim(), label: 'Slug' },
     ];
     for (const { key, label } of importantFields) {
-      if (!key) {
-        subitems.push(`Follow up: ${label} not provided`);
-      }
+      if (!key) subitems.push(`Follow up: ${label} not provided`);
     }
 
-    // Review requests
     const reviewFieldLabels = {
       name: 'Project Name',
       description: 'Description',
@@ -140,12 +114,9 @@ router.post('/', async (req, res) => {
     };
     for (const fieldName of reviewRequests) {
       const label = reviewFieldLabels[fieldName];
-      if (label) {
-        subitems.push(`Review: ${label}`);
-      }
+      if (label) subitems.push(`Review: ${label}`);
     }
 
-    // ── 5. Create subitems ──────────────────────────────────────────────────
     for (const subitemName of subitems) {
       await createSubitem(item.id, subitemName, {});
     }
@@ -160,9 +131,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Place after the existing POST /api/projects (add) handler and before POST /api/projects/archive
-
-// POST /api/projects/update
+// ── POST /api/projects/update ─────────────────────────────────────────────────
 router.post('/update', async (req, res) => {
   const result = validate('project.update', req.body);
   if (!result.valid) {
@@ -171,84 +140,52 @@ router.post('/update', async (req, res) => {
 
   const { submitterEmail, slug, changes } = req.body;
 
-  // Build structured summary for the parent item description
   const changeSummary = changes
     .map((c) => `${c.label || c.field}: ${formatChangeValue(c.value)}`)
     .join('\n');
 
-  const description = [
-    `Slug: ${slug}`,
+  const descriptionText = [
     `Submitter: ${submitterEmail}`,
+    `Slug: ${slug}`,
     '',
     'Requested Changes:',
     changeSummary,
   ].join('\n');
 
-  // Find project name from slug for the item title
-  // (slug is the reliable identifier; name is informational)
-  const itemName = `Update Project - ${slug}`;
-
   const columnValues = {
     [process.env.MONDAY_COL_STATUS]: { label: 'New' },
-    [process.env.MONDAY_COL_DATE]: { date: new Date().toISOString().split('T')[0] },
+    [process.env.MONDAY_COL_DATE]: { date: new Date().toISOString().slice(0, 10) },
     [process.env.MONDAY_COL_CONTENT_TYPE]: { labels: ['Project'] },
-    [process.env.MONDAY_COL_DESCRIPTION]: { text: description },
+    [process.env.MONDAY_COL_DESCRIPTION]: { text: descriptionText },
+    [process.env.MONDAY_COL_SUBMITTER_EMAIL]: { email: submitterEmail, text: submitterEmail },
   };
 
   try {
     const item = await createItem(
       process.env.MONDAY_BOARD_ID,
-      itemName,
+      `Update Project - ${slug}`,
       columnValues
     );
 
-    const parentItemId = item.id;
-
-    // One subitem per declared change block
     await Promise.all(
       changes.map((change) => {
         const subitemName = `${change.label || change.field}: ${summarizeValue(change.value)}`;
-        return createSubitem(parentItemId, subitemName, {});
+        return createSubitem(item.id, subitemName, {});
       })
     );
 
-    return res.status(201).json({ success: true, itemId: parentItemId });
+    return res.status(201).json({ success: true, itemId: item.id });
   } catch (err) {
     if (err.code === 'VPN_REQUIRED') {
-      return res.status(503).json({
-        code: 'VPN_REQUIRED',
-        message: 'Could not connect to the data API. Make sure you are connected to the VPN.',
-      });
+      return res.status(503).json({ code: 'VPN_REQUIRED', message: err.message });
     }
-    console.error('Error creating Monday item (update project):', err);
+    console.error('POST /api/projects/update error:', err);
     return res.status(500).json({ message: 'Failed to submit request. Please try again.' });
   }
 });
 
-// Helper: format a change value for display in the Monday description
-function formatChangeValue(value) {
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '(none)';
-    return value
-      .map((v) => (typeof v === 'object' ? v.name || v.url || JSON.stringify(v) : String(v)))
-      .join(', ');
-  }
-  if (typeof value === 'object' && value !== null) {
-    return value.name || value.url || JSON.stringify(value);
-  }
-  return String(value ?? '');
-}
-
-// Helper: short summary for subitem name (truncated to keep Monday item names readable)
-function summarizeValue(value) {
-  const full = formatChangeValue(value);
-  return full.length > 80 ? full.slice(0, 77) + '...' : full;
-}
-
 // ── POST /api/projects/archive ────────────────────────────────────────────────
-// Accepts an Archive Project submission, creates a Monday parent item.
 router.post('/archive', async (req, res) => {
-  // 1. Validate
   const result = validate('project.archive', req.body);
   if (!result.valid) {
     return res.status(400).json({ errors: result.errors });
@@ -260,7 +197,6 @@ router.post('/archive', async (req, res) => {
     const boardId = process.env.MONDAY_BOARD_ID;
     const today = new Date().toISOString().slice(0, 10);
 
-    // 2. Build description summary
     const descriptionText = [
       `Submitter: ${submitterEmail}`,
       `Project: ${name || slug}`,
@@ -273,12 +209,10 @@ router.post('/archive', async (req, res) => {
       [process.env.MONDAY_COL_DATE]: { date: today },
       [process.env.MONDAY_COL_CONTENT_TYPE]: { labels: ['Project'] },
       [process.env.MONDAY_COL_DESCRIPTION]: { text: descriptionText },
+      [process.env.MONDAY_COL_SUBMITTER_EMAIL]: { email: submitterEmail, text: submitterEmail },
     };
 
-    const itemName = `Archive Project - ${name?.trim() || slug}`;
-
-    // 3. Create Monday parent item (no subitems for Archive)
-    const item = await createItem(boardId, itemName, columnValues);
+    const item = await createItem(boardId, `Archive Project - ${name?.trim() || slug}`, columnValues);
 
     return res.status(200).json({ success: true, itemId: item.id });
   } catch (err) {
@@ -289,5 +223,31 @@ router.post('/archive', async (req, res) => {
     return res.status(500).json({ message: 'Failed to create Monday item.' });
   }
 });
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function formatChangeValue(value) {
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '(none)';
+    return value
+      .map((v) => (typeof v === 'object' ? v.name || v.url || JSON.stringify(v) : String(v)))
+      .join(', ');
+  }
+  if (typeof value === 'object' && value !== null) {
+    if ('add' in value || 'remove' in value) {
+      const parts = [];
+      if (value.remove?.length) parts.push(`remove: ${value.remove.join(', ')}`);
+      if (value.add?.length) parts.push(`add: ${formatChangeValue(value.add)}`);
+      return parts.length ? parts.join('; ') : '(no changes)';
+    }
+    return value.name || value.url || JSON.stringify(value);
+  }
+  return String(value ?? '');
+}
+
+function summarizeValue(value) {
+  const full = formatChangeValue(value);
+  return full.length > 80 ? full.slice(0, 77) + '...' : full;
+}
 
 export default router;

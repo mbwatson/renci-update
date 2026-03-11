@@ -10,15 +10,13 @@
  *   MONDAY_COL_DESCRIPTION         = long_text_mm0gwxya
  *   MONDAY_COL_ITEM_NAME           = text_mm0ghppz
  *   MONDAY_COL_ASSIGNED_PERSON     = person
- *   MONDAY_COL_SUBMITTER_EMAIL     = (not yet on board — to be added in RN-192 board audit)
+ *   MONDAY_COL_SUBMITTER_EMAIL     = email_mm1bgmaj
  *
  * Subitem columns:
  *   (not yet defined — column IDs to be determined during RN-192 board audit)
  *
  * Board IDs:
  *   MONDAY_BOARD_ID                — single board for all submissions (Projects + People)
- *                                    Note: CONTEXT.md references separate MONDAY_PROJECTS_BOARD_ID
- *                                    and MONDAY_PEOPLE_BOARD_ID — reconcile during RN-192 board audit
  */
 
 const MONDAY_API_URL = 'https://api.monday.com/v2';
