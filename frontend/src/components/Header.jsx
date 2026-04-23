@@ -2,6 +2,7 @@
 
 import { Box, Group, Text, Container, Button } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import UserAvatar from './UserAvatar';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -26,9 +27,8 @@ export default function Header() {
       <Container size="sm" py="sm">
         <Group justify="space-between" align="center">
 
-          {/* Branding — not a link, just identity */}
+          {/* Branding */}
           <Box style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {/* Swap for <img> once logo asset is ready */}
             <Box
               style={{
                 width: 36,
@@ -61,15 +61,18 @@ export default function Header() {
             </Box>
           </Box>
 
-          {/* New Request — always visible, navigates to home */}
-          <Button
-            variant="filled"
-            size="xs"
-            onClick={() => navigate('/')}
-            style={{ flexShrink: 0, background: '#005b8e' }}
-          >
-            New Request
-          </Button>
+          {/* Right side: New Request + avatar */}
+          <Group gap="md" align="center">
+            <Button
+              variant="filled"
+              size="xs"
+              onClick={() => navigate('/')}
+              style={{ flexShrink: 0, background: '#005b8e' }}
+            >
+              New Request
+            </Button>
+            <UserAvatar />
+          </Group>
 
         </Group>
       </Container>
