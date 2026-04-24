@@ -2,7 +2,10 @@
   "name": "update-dot-renci-dot-org",
   "version": "0.2.4",
   "private": true,
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "dev:frontend": "npm run dev --workspace=frontend",
@@ -13,5 +16,9 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "oidc-client-ts": "^3.5.0",
+    "react-oidc-context": "^3.3.1"
   }
 }

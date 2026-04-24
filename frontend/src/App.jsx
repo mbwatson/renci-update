@@ -1,9 +1,11 @@
 // frontend/src/App.jsx
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth, AuthProvider } from './context/AuthContext';
+import { AuthProvider } from 'react-oidc-context';
+import { AuthStateProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
+import AuthCallback from './pages/AuthCallback';
 import HomePage from './pages/HomePage';
 import PreviewPage from './pages/PreviewPage';
 import AddProjectPage from './pages/AddProjectPage';
@@ -12,8 +14,16 @@ import UpdateProjectPage from './pages/UpdateProjectPage';
 import UpdatePersonPage from './pages/UpdatePersonPage';
 import ArchiveProjectPage from './pages/ArchiveProjectPage';
 import ArchivePersonPage from './pages/ArchivePersonPage';
+import { useAuth } from './context/AuthContext';
 
-// Redirects to /login if not authenticated
+const oidcConfig = {
+  authority: 'https://accounts.google.com',
+  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
+  redirect_uri: `${window.location.origin}/auth/callback`,
+  scope: 'openid profile email',
+};
+
 function RequireAuth({ children }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -22,10 +32,9 @@ function RequireAuth({ children }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Login — no Layout wrapper, no header/footer */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
-      {/* All authenticated routes share the Layout */}
       <Route
         element={
           <RequireAuth>
@@ -51,10 +60,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider {...oidcConfig}>
+      <BrowserRouter>
+        <AuthStateProvider>
+          <AppRoutes />
+        </AuthStateProvider>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
