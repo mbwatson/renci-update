@@ -17,9 +17,8 @@ import ArchivePersonPage from './pages/ArchivePersonPage';
 import { useAuth } from './context/AuthContext';
 
 const oidcConfig = {
-  authority: 'https://accounts.google.com',
-  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-  client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
+  authority: import.meta.env.VITE_AD_AUTHORITY,
+  client_id: import.meta.env.VITE_AD_CLIENT_ID,
   redirect_uri: `${window.location.origin}/auth/callback`,
   scope: 'openid profile email',
 };
