@@ -18,8 +18,8 @@ PHONY_TARGETS := $(shell awk -F':.*?##' '/^[a-zA-Z0-9_.-]+:.*##/ {print $$1}' $(
 .DEFAULT_GOAL := help
 
 REGISTRY      := containers.renci.org
-FRONTEND_IMG  := $(REGISTRY)/renci-update-frontend
-BACKEND_IMG   := $(REGISTRY)/renci-update-backend
+FRONTEND_IMG  := $(REGISTRY)/comms/renci-update-frontend
+BACKEND_IMG   := $(REGISTRY)/comms/renci-update-backend
 NAMESPACE     ?= comms
 HELM_RELEASE  := renci-update
 HELM_CHART    := ./helm
@@ -31,7 +31,7 @@ CURRENT_VERSION := $(shell grep '^appVersion:' $(HELM_CHART)/Chart.yaml | awk '{
 # ✅ CHECKS
 # =============================================================================
 
-check: check-vars-GRAPHQL_ENDPOINT check-vars-GRAPHQL_AUTH_HEADER check-vars-MONDAY_API_KEY check-vars-MONDAY_BOARD_ID ## ✅ Check all required env vars are set
+check: check-vars-GRAPHQL_ENDPOINT check-vars-MONDAY_API_KEY check-vars-MONDAY_BOARD_ID ## ✅ Check all required env vars are set
 	@echo "✅ All required environment variables are set."
 
 # ⚠️ Fail if a required variable is not set
