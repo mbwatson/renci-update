@@ -16,11 +16,21 @@ import ArchiveProjectPage from './pages/ArchiveProjectPage';
 import ArchivePersonPage from './pages/ArchivePersonPage';
 import { useAuth } from './context/AuthContext';
 
+const authority = import.meta.env.VITE_AD_AUTHORITY;
+
 const oidcConfig = {
-  authority: import.meta.env.VITE_AD_AUTHORITY,
+  authority,
   client_id: import.meta.env.VITE_AD_CLIENT_ID,
   redirect_uri: `${window.location.origin}/auth/callback`,
   scope: 'openid profile email',
+  metadata: {
+    issuer: authority,
+    authorization_endpoint: `${authority}/oauth2/authorize/`,
+    token_endpoint: `${authority}/oauth2/token/`,
+    jwks_uri: `${authority}/discovery/keys`,
+    userinfo_endpoint: `${authority}/userinfo`,
+    end_session_endpoint: `${authority}/oauth2/logout`,
+  },
 };
 
 function RequireAuth({ children }) {
