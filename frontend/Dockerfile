@@ -8,6 +8,13 @@ COPY frontend/package*.json ./frontend/
 RUN npm ci --workspace=frontend
 
 COPY frontend/ frontend/
+
+# Declare build args and pass to Vite as env vars
+ARG VITE_AD_CLIENT_ID
+ARG VITE_AD_AUTHORITY
+ENV VITE_AD_CLIENT_ID=$VITE_AD_CLIENT_ID
+ENV VITE_AD_AUTHORITY=$VITE_AD_AUTHORITY
+
 RUN npm run build --workspace=frontend
 
 # run

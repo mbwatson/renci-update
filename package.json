@@ -1,6 +1,6 @@
 {
   "name": "update-dot-renci-dot-org",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "private": true,
   "workspaces": [
     "frontend",

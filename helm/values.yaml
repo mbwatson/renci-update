@@ -7,7 +7,7 @@ frontend:
   image:
     repository: containers.renci.org/comms/renci-update-frontend
     pullPolicy: Always
-    tag: "0.3.0"
+    tag: "0.3.2"
 
   resources:
     limits:
@@ -22,7 +22,7 @@ backend:
   image:
     repository: containers.renci.org/comms/renci-update-backend
     pullPolicy: Always
-    tag: "0.3.0"
+    tag: "0.3.2"
 
   resources:
     limits:

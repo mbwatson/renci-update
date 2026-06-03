@@ -78,7 +78,15 @@ export default function LoginPage() {
               </Text>
               <Text size="sm" c="gray.7">
                 This tool is for RENCI staff to submit website content change requests —
-                adding, updating, or archiving projects and people.
+                adding, updating, or archiving projects and people. If you have any issues 
+                with this form, please let us know using the{' '}
+                <Anchor
+                  href="https://bit.ly/Comms_Request_Form"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  communications request form
+                </Anchor>{' '}.
               </Text>
             </Stack>
 
